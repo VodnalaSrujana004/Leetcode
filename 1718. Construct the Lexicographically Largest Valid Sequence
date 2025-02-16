@@ -27,6 +27,8 @@ Constraints:
 
 1 <= n <= 20
 -----------------------------------------------------
+java solution : 
+
 class Solution {
     public int[] constructDistancedSequence(int n) {
         int[] result = new int[2 * n - 1];
