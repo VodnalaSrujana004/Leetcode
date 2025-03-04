@@ -1,4 +1,4 @@
-#27
+#28
 
 Given an integer n, return true if it is possible to represent n as the sum of distinct powers of three. Otherwise, return false.
 
@@ -28,3 +28,10 @@ Constraints:
 
 ---------------------------------------------
 
+class Solution {
+    public boolean checkPowersOfThree(int n) {
+        String base3 = Integer.toString(n, 3);
+        
+        return !base3.contains("2");
+    }
+}
