@@ -20,8 +20,9 @@ Example 2:
 Input: left = 4, right = 6
 Output: [-1,-1]
 Explanation: There exists only one prime number in the given range, so the conditions cannot be satisfied.
- 
+ ---------------------------------------------------------
 
 Constraints:
 
 1 <= left <= right <= 106
+------------------------------------------------
