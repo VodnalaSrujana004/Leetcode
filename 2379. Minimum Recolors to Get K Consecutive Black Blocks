@@ -36,6 +36,7 @@ blocks[i] is either 'W' or 'B'.
 1 <= k <= n
 
 -----------------------------------------------
+
 class Solution {
     public int minimumRecolors(String blocks, int k) {
         int blackCount = 0, ans = Integer.MAX_VALUE;
