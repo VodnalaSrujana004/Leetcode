@@ -31,7 +31,7 @@ bottoms.length == tops.length
 1 <= tops[i], bottoms[i] <= 6
 
 -------------------------------------------------------------------------
-
+java solution: 
 
 class Solution {
     public int minDominoRotations(int[] tops, int[] bottoms) {
