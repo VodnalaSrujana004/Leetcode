@@ -1,0 +1,76 @@
+You are given a positive integer num consisting only of digits 6 and 9.
+
+Return the maximum number you can get by changing at most one digit (6 becomes 9, and 9 becomes 6).
+
+ 
+
+Example 1:
+
+Input: num = 9669
+Output: 9969
+Explanation: 
+Changing the first digit results in 6669.
+Changing the second digit results in 9969.
+Changing the third digit results in 9699.
+Changing the fourth digit results in 9666.
+The maximum number is 9969.
+Example 2:
+
+Input: num = 9996
+Output: 9999
+Explanation: Changing the last digit 6 to 9 results in the maximum number.
+Example 3:
+
+Input: num = 9999
+Output: 9999
+Explanation: It is better not to apply any change.
+ 
+
+Constraints:
+
+1 <= num <= 104
+num consists of only 6 and 9 digits.
+
+------------------------------------------------------------
+
+Java Solution:
+💡 Intuition
+The number will be largest if we change the first 6 we see (from left to right) into a 9.
+Why?
+
+Digits on the left have a higher value than digits on the right.
+Changing a leftmost digit affects the number more than changing any digit on the right.
+📝 Approach
+Convert the number into characters so we can look at each digit easily.
+Scan from left to right:
+If we find a '6', change it to '9'.
+Stop immediately after the first change (since we can only change one digit).
+Convert the characters back into a number.
+Return that number.
+📌 Example
+Input: 9669
+Step 1: Convert to ['9', '6', '6', '9']
+Step 2: First digit is 9 → skip
+Step 3: Second digit is 6 → change it to 9
+Step 4: Now it’s ['9', '9', '6', '9'] → 9969
+That’s our answer.
+⏱ Complexity Analysis
+Time Complexity: O(n) — we scan the number’s digits once (where n is the number of digits).
+Space Complexity: O(n) — for storing the digits as a character array.
+(If we used a math-only method, we could make space O(1))
+
+------------------------------------------------------------------------
+
+Code:
+class Solution {
+    public int maximum69Number(int num) {
+  char[] digits = String.valueOf(num).toCharArray();  
+        for (int i = 0; i < digits.length; i++) {
+            if (digits[i] == '6') {
+                digits[i] = '9';
+                break; 
+            }
+        }
+        return Integer.parseInt(new String(digits));
+    }
+}
