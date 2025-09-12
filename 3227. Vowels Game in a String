@@ -1,0 +1,185 @@
+Alice and Bob are playing a game on a string.
+
+You are given a string s, Alice and Bob will take turns playing the following game where Alice starts first:
+
+On Alice's turn, she has to remove any non-empty substring from s that contains an odd number of vowels.
+On Bob's turn, he has to remove any non-empty substring from s that contains an even number of vowels.
+The first player who cannot make a move on their turn loses the game. We assume that both Alice and Bob play optimally.
+
+Return true if Alice wins the game, and false otherwise.
+
+The English vowels are: a, e, i, o, and u.
+
+ 
+
+Example 1:
+
+Input: s = "leetcoder"
+
+Output: true
+
+Explanation:
+Alice can win the game as follows:
+
+Alice plays first, she can delete the underlined substring in s = "leetcoder" which contains 3 vowels. The resulting string is s = "der".
+Bob plays second, he can delete the underlined substring in s = "der" which contains 0 vowels. The resulting string is s = "er".
+Alice plays third, she can delete the whole string s = "er" which contains 1 vowel.
+Bob plays fourth, since the string is empty, there is no valid play for Bob. So Alice wins the game.
+Example 2:
+
+Input: s = "bbcd"
+
+Output: false
+
+Explanation:
+There is no valid play for Alice in her first turn, so Alice loses the game.
+
+ 
+
+Constraints:
+
+1 <= s.length <= 105
+s consists only of lowercase English letters.
+
+------------------------------------------------
+
+Bitmask explained:
+To check if s[i] is a vowel (assuming s consist of lowercase letters):
+
+(0x104111 >> (s[i] - 97)) & 1
+Essentially, the expression evaluates to 1 if the character at s[i] is a vowel, otherwise 0:
+
+0x104111
+​
+  = bitmask for vowels = 0b00000000000100000100000100010001
+(s[i]−97)
+​
+ = remaps characters 'a - z' to indices 0,1,2,…,25.
+≫
+​
+  = right shift the bitmask by the character’s index.
+& 1
+​
+ = extracts the least significant bit (LSB) to test membership.
+Examples:
+Ex: s[i] = 'o'
+
+(0x104111 >> (111 - 97)) & 1
+(00000000000100000100000100010001 >> 14) & 1
+000000000001000001 & 1
+000000000001000001
+&000000000000000001
+000000000000000001
+​
+ 
+​
+ 
+
+result=1
+
+Thus: 'o' is a vowel.
+
+Ex: s[i] = 'g'
+
+(0x104111 >> (103 - 97)) & 1
+(00000000000100000100000100010001 >> 6) & 1
+00000000000100000100000100 & 1
+00000000000100000100000100
+&00000000000000000000000001
+00000000000000000000000000
+​
+ 
+​
+ 
+
+result=0
+
+Thus: 'g' is not a vowel.
+
+Intuition and proof
+So why does the existence of a vowel guarantee that Alice wins?
+
+For example:
+
+s=‘‘baabbbba"
+​
+ 
+Alice can greedily take the entire string because it has 3 vowels (odd).
+
+s=‘‘ 
+baabbbba
+​
+ "
+​
+ 
+Thus, Alice WINS in the first turn.
+
+Another case:
+
+Initially:
+
+s=‘‘babbbabb"
+​
+ 
+Alice can remove any substring with an odd number of vowels.
+
+s=‘‘ba 
+bbbabb
+​
+ " or ‘‘ 
+babbb
+​
+ abb"
+​
+ 
+Current state:
+
+s=‘‘ba" or ‘‘abb"
+​
+ 
+It seems Bob cannot make a move...
+But not yet, he is allowed to remove substrings with an even (0) number of vowels.
+
+s=‘‘ 
+b
+​
+ a" or ‘‘a 
+bb
+​
+ "
+​
+ 
+Current state:
+
+s=‘‘a"
+​
+ 
+Now the remaining string is a single vowel, which is odd. Alice can freely take it.
+
+ALICE WINS.
+
+Since Alice is always the first one to make a move:
+
+She can make sure Bob will NOT get EVEN number of vowels, by greedily taking odd number of vowels until 0 or 1 vowel remains.
+Effectively, Bob cannot take control of the board, and he can never remove the last vowel.
+So no matter what Bob does, if a vowel exists, Alice will always have a valid move.
+Conclusion:
+
+If there are no vowels, Alice cannot start and loses immediately.
+If there is at least one vowel, Alice can always win by eventually taking all vowels each turn.
+
+Time Complexity: O(n)
+Space Complexity: O(1)
+
+
+----------------------------------------
+
+class Solution {
+    public boolean doesAliceWin(String s) {
+        for (int i = 0; i < s.length(); i++)
+            if ((0x104111 >> (s.charAt(i) - 97) & 1) != 0)
+                return true;
+        return false;
+    }
+}
+
