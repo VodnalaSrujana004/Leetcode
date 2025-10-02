@@ -1,0 +1,68 @@
+You are given two integers numBottles and numExchange.
+
+numBottles represents the number of full water bottles that you initially have. In one operation, you can perform one of the following operations:
+
+Drink any number of full water bottles turning them into empty bottles.
+Exchange numExchange empty bottles with one full water bottle. Then, increase numExchange by one.
+Note that you cannot exchange multiple batches of empty bottles for the same value of numExchange. For example, if numBottles == 3 and numExchange == 1, you cannot exchange 3 empty water bottles for 3 full bottles.
+
+Return the maximum number of water bottles you can drink.
+
+ 
+
+Example 1:
+
+
+Input: numBottles = 13, numExchange = 6
+Output: 15
+Explanation: The table above shows the number of full water bottles, empty water bottles, the value of numExchange, and the number of bottles drunk.
+Example 2:
+
+
+Input: numBottles = 10, numExchange = 3
+Output: 13
+Explanation: The table above shows the number of full water bottles, empty water bottles, the value of numExchange, and the number of bottles drunk.
+ 
+
+Constraints:
+
+1 <= numBottles <= 100 
+1 <= numExchange <= 100
+
+
+---------------------------------------------------------------------
+
+
+class Solution {
+    public int maxBottlesDrunk(int numBottles, int x) {
+        int ans = numBottles;
+        while (numBottles >= x) {
+            numBottles -= x - 1;
+            x++;
+            ans++;
+        }
+        return ans;
+    }
+}
+
+
+------------------------------------------------------------
+
+
+Understanding the Problem
+We are given some bottles filled with water, we can drink them to obtain empty bottles.
+We are given a value numExchange, which allows us to exchange x number of empty bottles, in return for a bottle filled with water.
+This value x is initially equal to numExchange but keeps incrementing by 1 (the exchange keeps getting more expensive), everytime we perform the exchange once.
+We need to return the maximum number of bottles that we can drink?
+💡 Intuition
+You just need to ask yourself two questions here, and then you'll be done with solving this problem.
+1️⃣ What do we need to maximize here?
+The number of bottles we've drunk.
+As initially when we are given numBottles, we can just simply drink all of them.
+This is as, trades can be performed only using empty bottles, and drinking full bottles adds onto our result so its better for us.
+2️⃣ How do we simulate the trade?
+For every numBottles >= x that we have, we decrement x - 1,
+Well why x - 1?
+This is as, everytime we trade, our number of empty bottles reduces by x, while our number of filled bottles increment by 1.
+So inorder to simulate this, we count it as x bottles lost and 1 bottle gained.
+We then increment the count of result (ans) here as now we can drink the filled bottle obtained and turn it into an empty bottle as well.
