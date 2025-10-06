@@ -1,0 +1,95 @@
+You are given an n x n integer matrix grid where each value grid[i][j] represents the elevation at that point (i, j).
+
+It starts raining, and water gradually rises over time. At time t, the water level is t, meaning any cell with elevation less than equal to t is submerged or reachable.
+
+You can swim from a square to another 4-directionally adjacent square if and only if the elevation of both squares individually are at most t. You can swim infinite distances in zero time. Of course, you must stay within the boundaries of the grid during your swim.
+
+Return the minimum time until you can reach the bottom right square (n - 1, n - 1) if you start at the top left square (0, 0).
+
+ 
+
+Example 1:
+
+
+Input: grid = [[0,2],[1,3]]
+Output: 3
+Explanation:
+At time 0, you are in grid location (0, 0).
+You cannot go anywhere else because 4-directionally adjacent neighbors have a higher elevation than t = 0.
+You cannot reach point (1, 1) until time 3.
+When the depth of water is 3, we can swim anywhere inside the grid.
+Example 2:
+
+
+Input: grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]
+Output: 16
+Explanation: The final route is shown.
+We need to wait until time 16 so that (0, 0) and (4, 4) are connected.
+ 
+
+Constraints:
+
+n == grid.length
+n == grid[i].length
+1 <= n <= 50
+0 <= grid[i][j] < n2
+Each value grid[i][j] is unique.
+
+
+-----------------------------------------------------------------------
+
+
+Intuition
+The task is to swim from the top-left corner to the bottom-right corner of a grid. At time t, the water level is t. The challenge is to find the minimum time until the bottom-right corner can be reached, while moving through the grid and adhering to the rising water levels. We can swim to a neighboring cell if both the elevation of the cell and the surrounding water level are less than or equal to t.
+
+Approach
+Use Dijkstra's algorithm (Min-Heap approach):
+Treat each cell's value as the "cost" of traversing that cell. Using a priority queue (min-heap), we can expand the least costly paths (with the smallest maximum height) first. This ensures we explore the grid optimally.
+
+We start at the top-left corner (0, 0) and explore its neighbors.
+For each cell, we expand it to its 4 adjacent neighbors (up, down, left, right).
+We keep track of the maximum height encountered along the path to each cell.
+The goal is to minimize the maximum water level encountered to reach the bottom-right corner.
+Binary Search Approach:
+A binary search is used on the possible time values. The idea is to check if it's possible to reach the bottom-right corner given a certain water level. By progressively adjusting the left and right bounds (the potential water levels), we can converge on the minimum possible time.
+
+DFS for Path Checking:
+For each water level t, a Depth-First Search (DFS) is used to check if there is a path from the top-left to the bottom-right corner where all elevations are ≤ t.
+
+Complexity
+Time complexity:
+The time complexity is O(n^2 log n), where n is the grid's side length. The binary search runs in O(log(maxHeight)) and for each check, a DFS runs in O(n^2) in the worst case.
+
+Space complexity:
+The space complexity is O(n^2) due to the storage required for the visited array.
+
+
+-----------------------------------------------------------------
+
+
+class Solution {
+    public int swimInWater(int[][] grid) {
+        int n = grid.length;
+        boolean[][] visited = new boolean[n][n];
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));
+        pq.offer(new int[]{grid[0][0], 0, 0});
+        visited[0][0] = true;
+
+        int[][] dirs = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+
+        while (!pq.isEmpty()) {
+            int[] cur = pq.poll();
+            int t = cur[0], r = cur[1], c = cur[2];
+            if (r == n - 1 && c == n - 1)
+                return t;
+            for (int[] d : dirs) {
+                int nr = r + d[0], nc = c + d[1];
+                if (nr >= 0 && nr < n && nc >= 0 && nc < n && !visited[nr][nc]) {
+                    visited[nr][nc] = true;
+                    pq.offer(new int[]{Math.max(t, grid[nr][nc]), nr, nc});
+                }
+            }
+        }
+        return -1;
+    }
+}
