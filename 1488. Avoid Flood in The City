@@ -1,0 +1,147 @@
+Your country has an infinite number of lakes. Initially, all the lakes are empty, but when it rains over the nth lake, the nth lake becomes full of water. If it rains over a lake that is full of water, there will be a flood. Your goal is to avoid floods in any lake.
+
+Given an integer array rains where:
+
+rains[i] > 0 means there will be rains over the rains[i] lake.
+rains[i] == 0 means there are no rains this day and you can choose one lake this day and dry it.
+Return an array ans where:
+
+ans.length == rains.length
+ans[i] == -1 if rains[i] > 0.
+ans[i] is the lake you choose to dry in the ith day if rains[i] == 0.
+If there are multiple valid answers return any of them. If it is impossible to avoid flood return an empty array.
+
+Notice that if you chose to dry a full lake, it becomes empty, but if you chose to dry an empty lake, nothing changes.
+
+ 
+
+Example 1:
+
+Input: rains = [1,2,3,4]
+Output: [-1,-1,-1,-1]
+Explanation: After the first day full lakes are [1]
+After the second day full lakes are [1,2]
+After the third day full lakes are [1,2,3]
+After the fourth day full lakes are [1,2,3,4]
+There's no day to dry any lake and there is no flood in any lake.
+Example 2:
+
+Input: rains = [1,2,0,0,2,1]
+Output: [-1,-1,2,1,-1,-1]
+Explanation: After the first day full lakes are [1]
+After the second day full lakes are [1,2]
+After the third day, we dry lake 2. Full lakes are [1]
+After the fourth day, we dry lake 1. There is no full lakes.
+After the fifth day, full lakes are [2].
+After the sixth day, full lakes are [1,2].
+It is easy that this scenario is flood-free. [-1,-1,1,2,-1,-1] is another acceptable scenario.
+Example 3:
+
+Input: rains = [1,2,0,1,2]
+Output: []
+Explanation: After the second day, full lakes are  [1,2]. We have to dry one lake in the third day.
+After that, it will rain over lakes [1,2]. It's easy to prove that no matter which lake you choose to dry in the 3rd day, the other one will flood.
+ 
+
+Constraints:
+
+1 <= rains.length <= 105
+0 <= rains[i] <= 109
+
+
+--------------------------------------------------
+
+
+The Goal: Prevent a flood. A flood happens if it rains on a lake that's already full.
+
+The Strategy:
+
+Keep track of full lakes: We need to know which lakes are full and, importantly, when they last rained. If a lake X rained on Day A and will rain again on Day B, it must be dried on a day between Day A and Day B.
+
+We use a HashMap (lastRainDay) for this: (Lake ID -> Day it last rained).
+Keep track of dry days: These are our opportunities to empty a lake.
+
+We use a TreeSet (dryDaysAvailable) to store the Day Indices of all dry days. A TreeSet is special because it can quickly find the next available dry day after a specific past day.
+How we process each day:
+
+If it Rains on Lake L (e.g., rains[i] = L):
+
+ans[i] = -1 (no drying on a rainy day).
+Check for flood risk: Look up L in lastRainDay.
+If L is already there, it means L is full from a previous rain. We must dry it.
+Find the earliest dry day (D) in dryDaysAvailable that comes after L's last rain day.
+If no such dry day D exists, we can't prevent the flood, so return an empty array [].
+Otherwise, assign ans[D] = L (meaning we dry lake L on day D) and remove D from dryDaysAvailable (it's used).
+Update lastRainDay for L to the current day i.
+If it's a Dry Day (e.g., rains[i] = 0):
+
+Add the current day i to dryDaysAvailable.
+Set ans[i] = 1 as a default. This means we could dry lake 1. This value will be overridden if this dry day is later needed to prevent a specific flood. Drying an empty lake does nothing, so it's a safe default.
+In essence: For every lake that gets full, we proactively reserve the earliest possible upcoming dry day to empty it, making sure we don't accidentally cause a flood. If we run out of dry days when a flood is imminent, then it's impossible.
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
+
+class Solution {
+    public int[] avoidFlood(int[] rains) {
+        int n = rains.length;
+        int[] ans = new int[n];
+
+        // Map to store the last day a lake rained and became full.
+        // Key: lake ID, Value: day index.
+        Map<Integer, Integer> lastRainDay = new HashMap<>();
+
+        // TreeSet to store indices of dry days (rains[i] == 0).
+        // Using TreeSet helps efficiently find the *earliest* available dry day
+        // to dry a specific lake that needs it.
+        TreeSet<Integer> dryDaysAvailable = new TreeSet<>();
+
+        for (int i = 0; i < n; i++) {
+            int currentLake = rains[i];
+
+            if (currentLake > 0) { // It's a rainy day for 'currentLake'
+                ans[i] = -1; // As per problem statement, no drying on rainy days
+
+                // Check if this lake is already full
+                if (lastRainDay.containsKey(currentLake)) {
+                    // If it is, we need to find a dry day between its last rain
+                    // and the current day (exclusive) to prevent a flood.
+                    int lastRainOccurredDay = lastRainDay.get(currentLake);
+
+                    // Find the smallest dry day index 'd' such that 'd > lastRainOccurredDay'.
+                    Integer dryDayIndex = dryDaysAvailable.ceiling(lastRainOccurredDay + 1);
+
+                    if (dryDayIndex == null) {
+                        // No available dry day to prevent a flood for this lake.
+                        // It's impossible to avoid a flood.
+                        return new int[]{};
+                    } else {
+                        // Use this 'dryDayIndex' to dry 'currentLake'.
+                        ans[dryDayIndex] = currentLake;
+                        // This dry day is now used, remove it from available dry days.
+                        dryDaysAvailable.remove(dryDayIndex);
+                    }
+                }
+                // Update the last rain day for 'currentLake' to the current day.
+                lastRainDay.put(currentLake, i);
+
+            } else { // rains[i] == 0, it's a dry day
+                // Add the current day index to our set of available dry days.
+                dryDaysAvailable.add(i);
+                // For now, assign a default lake to dry (e.g., lake 1).
+                // This value will be overwritten if this dry day is specifically needed
+                // to prevent a flood for some other lake later.
+                // If it's not overwritten, drying an empty lake (like lake 1 might be)
+                // is fine and doesn't cause a flood.
+                ans[i] = 1; 
+            }
+        }
+
+        return ans;
+    }
+}
