@@ -1,0 +1,216 @@
+You are given a string s and an integer k.
+
+First, you are allowed to change at most one index in s to another lowercase English letter.
+
+After that, do the following partitioning operation until s is empty:
+
+Choose the longest prefix of s containing at most k distinct characters.
+Delete the prefix from s and increase the number of partitions by one. The remaining characters (if any) in s maintain their initial order.
+Return an integer denoting the maximum number of resulting partitions after the operations by optimally choosing at most one index to change.
+
+ 
+
+Example 1:
+
+Input: s = "accca", k = 2
+
+Output: 3
+
+Explanation:
+
+The optimal way is to change s[2] to something other than a and c, for example, b. then it becomes "acbca".
+
+Then we perform the operations:
+
+The longest prefix containing at most 2 distinct characters is "ac", we remove it and s becomes "bca".
+Now The longest prefix containing at most 2 distinct characters is "bc", so we remove it and s becomes "a".
+Finally, we remove "a" and s becomes empty, so the procedure ends.
+Doing the operations, the string is divided into 3 partitions, so the answer is 3.
+
+Example 2:
+
+Input: s = "aabaab", k = 3
+
+Output: 1
+
+Explanation:
+
+Initially s contains 2 distinct characters, so whichever character we change, it will contain at most 3 distinct characters, so the longest prefix with at most 3 distinct characters would always be all of it, therefore the answer is 1.
+
+Example 3:
+
+Input: s = "xxyz", k = 1
+
+Output: 4
+
+Explanation:
+
+The optimal way is to change s[0] or s[1] to something other than characters in s, for example, to change s[0] to w.
+
+Then s becomes "wxyz", which consists of 4 distinct characters, so as k is 1, it will divide into 4 partitions.
+
+ 
+
+Constraints:
+
+1 <= s.length <= 104
+s consists only of lowercase English letters.
+1 <= k <= 26
+---------------------------------------------------------
+
+
+
+
+🧠 Problem in Simple Words
+
+We have a string s and a number k.
+
+We split the string into segments, where each segment can have at most k different characters.
+
+We can change at most one character in the string to any other character (a–z).
+
+Our goal is to maximize the number of segments after this change.
+
+🧮 Key Idea (Easy to Understand)
+
+Without changing anything, count how many segments we can form:
+
+Keep track of unique characters in the current segment.
+
+If adding a new character makes the count > k, start a new segment.
+
+When we change a character at position i:
+
+Everything before i (left) and after i (right) is already fixed.
+
+We only need to check how changing the i-th character affects:
+
+the left boundary segment, and
+
+the right boundary segment.
+
+Three possible effects:
+
+✅ Merge left + i + right into 1 segment (if unique characters ≤ k).
+
+✅ Make left, i, right separate segments (3 segments) (if both left and right are full and we choose a new unique character).
+
+✅ Otherwise, just split into 2 segments.
+
+So, for each position i, we check:
+
+How many segments come from left side
+
+How many segments come from right side
+
+How many segments we can get at position i after the change
+
+Take the maximum over all positions.
+
+🧠 Why Use Bitmask
+
+Each letter can be represented as a bit.
+
+OR-ing masks gives union of letters.
+
+Integer.bitCount(mask) gives how many unique letters are in that segment.
+👉 This is fast and memory-friendly.
+
+⏳ Complexity
+
+Time: O(26 * n) (because we check 26 letters for bitmask).
+
+Space: O(n) for prefix and suffix arrays.
+
+🪄 Quick Recap
+
+Count segments left and right.
+
+Use bitmask to track unique characters fast.
+
+Simulate changing one character.
+
+Get max segment count across all positions.-
+
+---------------------------------------------------------
+
+🧠 What the code is doing
+
+left[i] → info of segments before index i
+
+right[i] → info of segments after index i
+
+mask → bitmask to track distinct characters in a segment
+
+count → how many distinct chars in the current segment
+
+num → how many full segments formed so far
+
+Then:
+
+First loop builds left info.
+
+Second loop builds right info.
+
+Third loop tries changing character at each position i to find the max number of segments
+
+-----------------------------------------------------------------------
+
+public class Solution {
+    public int maxPartitionsAfterOperations(String s, int k) {
+        int n = s.length();
+        int[][] left = new int[n][3], right = new int[n][3];
+
+        // Left to Right
+        int seg = 0, mask = 0, count = 0;
+        for (int i = 0; i < n - 1; i++) {
+            int bit = 1 << (s.charAt(i) - 'a');
+            if ((mask & bit) == 0) {
+                count++;
+                if (count > k) {
+                    seg++;
+                    mask = bit;
+                    count = 1;
+                } else mask |= bit;
+            }
+            left[i + 1][0] = seg;
+            left[i + 1][1] = mask;
+            left[i + 1][2] = count;
+        }
+
+        // Right to Left
+        seg = 0; mask = 0; count = 0;
+        for (int i = n - 1; i > 0; i--) {
+            int bit = 1 << (s.charAt(i) - 'a');
+            if ((mask & bit) == 0) {
+                count++;
+                if (count > k) {
+                    seg++;
+                    mask = bit;
+                    count = 1;
+                } else mask |= bit;
+            }
+            right[i - 1][0] = seg;
+            right[i - 1][1] = mask;
+            right[i - 1][2] = count;
+        }
+
+        // Try modifying each position
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            int totalSeg = left[i][0] + right[i][0] + 2;
+            int combinedMask = left[i][1] | right[i][1];
+            int uniqueChars = Integer.bitCount(combinedMask);
+
+            if (left[i][2] == k && right[i][2] == k && uniqueChars < 26) {
+                totalSeg++;
+            } else if (uniqueChars + 1 <= k) {
+                totalSeg--;
+            }
+
+            ans = Math.max(ans, totalSeg);
+        }
+
+        return ans;
+    }
+}
