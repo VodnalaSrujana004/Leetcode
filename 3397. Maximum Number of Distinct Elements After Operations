@@ -1,0 +1,140 @@
+You are given an integer array nums and an integer k.
+
+You are allowed to perform the following operation on each element of the array at most once:
+
+Add an integer in the range [-k, k] to the element.
+Return the maximum possible number of distinct elements in nums after performing the operations.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,2,3,3,4], k = 2
+
+Output: 6
+
+Explanation:
+
+nums changes to [-1, 0, 1, 2, 3, 4] after performing operations on the first four elements.
+
+Example 2:
+
+Input: nums = [4,4,4,4], k = 1
+
+Output: 3
+
+Explanation:
+
+By adding -1 to nums[0] and 1 to nums[1], nums changes to [3, 5, 4, 4].
+
+ 
+
+Constraints:
+
+1 <= nums.length <= 105
+1 <= nums[i] <= 109
+0 <= k <= 109
+
+-------------------------------------------------------
+
+
+
+
+✅ Maximum Number of Distinct Elements After Operations
+You are given an integer array nums and an integer k.
+For each element in the array, you may perform at most one operation:
+
+👉 Add any integer in the range [-k, k] to that element.
+
+Your goal is to maximize the number of distinct elements in the array after performing operations.
+
+✅ Understanding the Problem
+We want as many values to be unique as possible after modifying each number within a range. Since each number can move within [x-k, x+k], instead of keeping duplicates close together, we should spread them out as far as possible while staying inside allowed bounds.
+
+Sure! Here is a clear problem explanation with examples using tables and visuals, not paragraphs. Easy to understand and perfect for a LeetCode Discuss post intro.
+
+🔧 Operation Allowed
+For each number x in nums, you can transform it to any number in:
+
+[
+[x - k,; x + k]
+]
+
+✅ Example:
+Input:
+nums = [4, 4, 4, 4], k = 1
+Index	Element (x)	Range
+0	4	[3, 5]
+1	4	[3, 5]
+2	4	[3, 5]
+3	4	[3, 5]
+Assign distinct values:
+
+Step	Range	Smallest Available	Assign
+1	[3, 5]	3	3
+2	[3, 5]	4	4
+3	[3, 5]	5	5
+4	[3, 5]	6 ❌ (not allowed)	-
+✅ Final distinct numbers = [3, 4, 5]
+✅ ✅ Answer = 3
+
+✅ Key Idea
+We will:
+
+✅ Sort the array
+✅ Try to assign each number a unique value inside [x - k, x + k]
+✅ Always pick the smallest possible number that keeps things distinct
+✅ Keep moving a pointer low that tells us the last used distinct number
+
+✅ Intuition
+Think greedily. For each element in sorted order, we assign it the smallest possible available value while ensuring:
+
+✔ It's greater than the last assigned value
+✔ It stays within the allowed adjustment range [x - k, x + k]
+
+If both are satisfied, we assign that number and count it as distinct.
+
+✅ Approach
+Sort the array.
+
+Keep a variable low which stores the last used distinct value.
+
+For every element x:
+
+The smallest valid value we can assign is max(low + 1, x - k)
+If that value is ≤ x + k, it can be used.
+Count it and update low.
+✅ Dry Run (Example)
+Input:
+nums = [1,2,2,3,3,4], k = 2
+Step	x	Allowed Range [x-k, x+k]	low	Assigned	New low
+1	1	[-1, 3]	-∞	-1	-1
+2	2	[0, 4]	-1	0	0
+3	2	[0, 4]	0	1	1
+4	3	[1, 5]	1	2	2
+5	3	[1, 5]	2	3	3
+6	4	[2, 6]	3	4	4
+✅ Total distinct = 6
+
+✅ Time & Space Complexity
+Complexity	Value
+Time Complexity	O(n log n) (sorting dominates)
+Space Complexity	O(1) extra space
+----------------------------------------------------------------------
+
+class Solution {
+    public int maxDistinctElements(int[] nums, int k) {
+        Arrays.sort(nums);
+        long low = Long.MIN_VALUE;
+        int res = 0;
+
+        for (long x : nums) {
+            long cur = Math.max(low + 1, x - k);
+            if (cur <= x + k) {
+                res++;
+                low = cur;
+            }
+        }
+        return res;
+    }
+}
