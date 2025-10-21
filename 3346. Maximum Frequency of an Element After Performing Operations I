@@ -1,0 +1,86 @@
+You are given an integer array nums and two integers k and numOperations.
+
+You must perform an operation numOperations times on nums, where in each operation you:
+
+Select an index i that was not selected in any previous operations.
+Add an integer in the range [-k, k] to nums[i].
+Return the maximum possible frequency of any element in nums after performing the operations.
+
+ 
+
+Example 1:
+
+Input: nums = [1,4,5], k = 1, numOperations = 2
+
+Output: 2
+
+Explanation:
+
+We can achieve a maximum frequency of two by:
+
+Adding 0 to nums[1]. nums becomes [1, 4, 5].
+Adding -1 to nums[2]. nums becomes [1, 4, 4].
+Example 2:
+
+Input: nums = [5,11,20,20], k = 5, numOperations = 1
+
+Output: 2
+
+Explanation:
+
+We can achieve a maximum frequency of two by:
+
+Adding 0 to nums[1].
+ 
+
+Constraints:
+
+1 <= nums.length <= 105
+1 <= nums[i] <= 105
+0 <= k <= 105
+0 <= numOperations <= nums.length
+
+-----------------------------------------------
+
+
+class Solution {
+    public int maxFrequency(int[] nums, int k, int ops) {
+        int mx = Arrays.stream(nums).max().getAsInt();
+        int n = mx + k + 2; // Max possible value after adding k
+        int[] freq = new int[n];
+        for (int x : nums) freq[x]++; // Count frequency of each number
+
+        int[] prefix = new int[n];
+        prefix[0] = freq[0];
+        for (int i = 1; i < n; i++) prefix[i] = prefix[i - 1] + freq[i]; // Prefix sum for range queries
+
+        int maxFreq = 0;
+        for (int t = 0; t < n; t++) {
+            if (freq[t] == 0 && ops == 0) continue; // Skip if no current count and no ops left
+            int left = Math.max(0, t - k); // Left bound of valid range
+            int right = Math.min(n - 1, t + k); // Right bound of valid range
+            int totalInRange = prefix[right] - (left > 0 ? prefix[left - 1] : 0); // Total numbers in [t-k, t+k]
+            int canConvert = totalInRange - freq[t]; // Numbers that can be converted to t
+            int currentFreq = freq[t] + Math.min(ops, canConvert); // Max possible frequency for t
+            maxFreq = Math.max(maxFreq, currentFreq);
+        }
+        return maxFreq;
+    }
+}
+
+----------------------------------------
+
+
+Intuition:
+For each possible target value t, we calculate how many numbers in nums can be adjusted to t using operations (within [-k, k]). The maximum frequency for t is the count of t in nums plus the number of other numbers that can be converted to t (up to available operations).
+
+Approach:
+
+Frequency Array: Track how many times each number appears in nums.
+Prefix Sum: Enable O(1) range sum queries for the frequency array.
+Target Check: For each possible target t:
+Determine the range [t-k, t+k] where numbers can be adjusted to t.
+Calculate total numbers in this range using prefix sums.
+Compute achievable frequency for t as current_count + min(ops, convertable_numbers).
+Time Complexity: O(max_value) where max_value = max(nums) + k (≈ 2×10⁵).
+Space Complexity: O(max_value) for frequency and prefix arrays.
