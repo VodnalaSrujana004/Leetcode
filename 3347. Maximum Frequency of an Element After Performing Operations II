@@ -1,0 +1,85 @@
+You are given an integer array nums and two integers k and numOperations.
+
+You must perform an operation numOperations times on nums, where in each operation you:
+
+Select an index i that was not selected in any previous operations.
+Add an integer in the range [-k, k] to nums[i].
+Return the maximum possible frequency of any element in nums after performing the operations.
+
+ 
+
+Example 1:
+
+Input: nums = [1,4,5], k = 1, numOperations = 2
+
+Output: 2
+
+Explanation:
+
+We can achieve a maximum frequency of two by:
+
+Adding 0 to nums[1], after which nums becomes [1, 4, 5].
+Adding -1 to nums[2], after which nums becomes [1, 4, 4].
+Example 2:
+
+Input: nums = [5,11,20,20], k = 5, numOperations = 1
+
+Output: 2
+
+Explanation:
+
+We can achieve a maximum frequency of two by:
+
+Adding 0 to nums[1].
+ 
+
+Constraints:
+
+1 <= nums.length <= 105
+1 <= nums[i] <= 109
+0 <= k <= 109
+0 <= numOperations <= nums.length
+
+
+------------------------------------------
+
+
+class Solution {
+    public int maxFrequency(int[] nums, int k, int numOperations) {
+        int ans = 1;  // Initialize with minimum possible frequency (1)
+        int adjustable = 0;  // Tracks how many numbers can be adjusted to current candidate
+        Map<Integer, Integer> count = new HashMap<>();  // Count existing frequencies
+        TreeMap<Integer, Integer> line = new TreeMap<>();  // Difference array for intervals
+        TreeSet<Integer> candidates = new TreeSet<>();  // All interval boundaries for sweep
+
+        // Count frequencies and mark intervals [num-k, num+k] as adjustable
+        for (int num : nums) {
+            count.merge(num, 1, Integer::sum);  // Count existing numbers
+            line.merge(num - k, 1, Integer::sum);  // Start of interval
+            line.merge(num + k + 1, -1, Integer::sum);  // End of interval
+            candidates.add(num);  // Current number
+            candidates.add(num - k);  // Start boundary
+            candidates.add(num + k + 1);  // End boundary
+        }
+
+        // Sweep through all candidate points (sorted) to compute max frequency
+        for (int x : candidates) {
+            adjustable += line.getOrDefault(x, 0);  // Update count of numbers that can reach x
+            int cntX = count.getOrDefault(x, 0);  // Existing count of x
+            int adjusted = adjustable - cntX;  // Numbers that can be converted to x
+            ans = Math.max(ans, cntX + Math.min(numOperations, adjusted));  // Update max frequency
+        }
+        return ans;
+    }
+}
+
+-------------------------------------------------------
+
+
+Approach: Sweep Line
+
+Intuition:
+For each number num, it can be adjusted to any target in [num - k, num + k]. Using a difference array (tracked via TreeMap), we efficiently compute how many numbers can reach each target x as we sweep through possible values. The maximum frequency for x is existing count of x + min(operations, convertible numbers).
+
+Time Complexity: O(n log n) — due to TreeMap operations and sorting candidates.
+Space Complexity: O(n) — for storing count, line, and candidates.
