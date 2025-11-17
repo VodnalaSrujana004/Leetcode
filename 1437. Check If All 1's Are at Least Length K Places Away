@@ -1,0 +1,62 @@
+Given an binary array nums and an integer k, return true if all 1's are at least k places away from each other, otherwise return false.
+
+ 
+
+Example 1:
+
+
+Input: nums = [1,0,0,0,1,0,0,1], k = 2
+Output: true
+Explanation: Each of the 1s are at least 2 places away from each other.
+Example 2:
+
+
+Input: nums = [1,0,0,1,0,1], k = 2
+Output: false
+Explanation: The second 1 and third 1 are only one apart from each other.
+ 
+
+Constraints:
+
+1 <= nums.length <= 105
+0 <= k <= nums.length
+nums[i] is 0 or 1
+
+-------------------------------------
+
+
+Intuition
+To verify whether all 1's are spaced at least k apart, we only need to track the index of the previously seen 1. Each time we encounter another 1, we check if the distance from the previous one is greater than k. If not, the condition fails.
+
+Approach
+Find the first 1 in the array.
+As we continue scanning:
+When another 1 is found, check if (current_index - last_index) > k.
+If the distance is too small, return false.
+Otherwise, update last_index.
+If the entire array is scanned without violating the rule, return true.
+
+Complexity
+Time Complexity: O(n) — we iterate through the array once.
+Space Complexity: O(1) — only constant extra variables.
+
+------------------------------
+
+class Solution {
+    public boolean kLengthApart(int[] nums, int k) {
+        int n = nums.length;
+        int prev = -1;
+
+        // iterate through array
+        for (int i = 0; i < n; i++) {
+            if (nums[i] == 1) {
+                if (prev != -1 && (i - prev) <= k) {
+                    return false;
+                }
+                prev = i;
+            }
+        }
+        return true;
+    }
+}
+
