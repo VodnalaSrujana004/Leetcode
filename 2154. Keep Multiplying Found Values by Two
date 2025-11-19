@@ -1,0 +1,68 @@
+You are given an array of integers nums. You are also given an integer original which is the first number that needs to be searched for in nums.
+
+You then do the following steps:
+
+If original is found in nums, multiply it by two (i.e., set original = 2 * original).
+Otherwise, stop the process.
+Repeat this process with the new number as long as you keep finding the number.
+Return the final value of original.
+
+ 
+
+Example 1:
+
+Input: nums = [5,3,6,1,12], original = 3
+Output: 24
+Explanation: 
+- 3 is found in nums. 3 is multiplied by 2 to obtain 6.
+- 6 is found in nums. 6 is multiplied by 2 to obtain 12.
+- 12 is found in nums. 12 is multiplied by 2 to obtain 24.
+- 24 is not found in nums. Thus, 24 is returned.
+Example 2:
+
+Input: nums = [2,7,9], original = 4
+Output: 4
+Explanation:
+- 4 is not found in nums. Thus, 4 is returned.
+ 
+
+Constraints:
+
+1 <= nums.length <= 1000
+1 <= nums[i], original <= 1000
+
+--------------------
+
+Approach 1: Sorting
+Intuition
+If we do not perform any operation on the array nums, then after each update of original, we would need to traverse the entire array, which takes O(n) time. The overall time complexity would therefore be O(n 
+2
+ ).
+
+We can optimize this process. Specifically, each time we find original in the array, its value becomes larger than before the update. Therefore, we can first sort the array nums in ascending order. This way, the position of the updated original value in the array (if it exists) can only appear after its previous position. We only need to traverse the sorted nums array from left to right while updating original whenever we find a match.
+
+Implementation
+
+class Solution {
+
+    public int findFinalValue(int[] nums, int original) {
+        Arrays.sort(nums);
+        for (int num : nums) {
+            if (original == num) {
+                original *= 2;
+            }
+        }
+        return original;
+    }
+}
+
+Complexity Analysis
+Let n be the length of nums.
+
+Time complexity: O(nlogn).
+
+Sorting the array takes O(nlogn) time, and traversing it to update original takes O(n) time, giving a total of O(nlogn).
+
+Space complexity: O(logn).
+
+Apart from the sorting process (which may require additional space depending on the implementation), no extra data structures are used.
