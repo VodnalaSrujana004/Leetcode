@@ -1,0 +1,100 @@
+A 3 x 3 magic square is a 3 x 3 grid filled with distinct numbers from 1 to 9 such that each row, column, and both diagonals all have the same sum.
+
+Given a row x col grid of integers, how many 3 x 3 magic square subgrids are there?
+
+Note: while a magic square can only contain numbers from 1 to 9, grid may contain numbers up to 15.
+
+ 
+
+Example 1:
+
+
+Input: grid = [[4,3,8,4],[9,5,1,9],[2,7,6,2]]
+Output: 1
+Explanation: 
+The following subgrid is a 3 x 3 magic square:
+
+while this one is not:
+
+In total, there is only one magic square inside the given grid.
+Example 2:
+
+Input: grid = [[8]]
+Output: 0
+ 
+
+Constraints:
+
+row == grid.length
+col == grid[i].length
+1 <= row, col <= 10
+0 <= grid[i][j] <= 15
+
+
+
+-----------------------------------------
+
+class Solution {
+    public int numMagicSquaresInside(int[][] grid) {
+        int row = grid.length;
+        int col = grid[0].length;
+        int ans = 0;
+        int[][] sumGrid = new int[row][col];
+        
+        for(int r = 0 ; r<row ; r++){
+            for(int c = 0 ; c<col ; c++){
+                
+                if(r+2 < row  && c+2 < col){
+
+                    // for checking distinct elementss
+                    boolean[] seen = new boolean[10];
+                    boolean valid = true;
+                    for (int i = r; i < r + 3; i++) {
+                        for (int j = c; j < c + 3; j++) {
+                            int val = grid[i][j];
+                            if (val < 1 || val > 9 || seen[val]) {
+                                valid = false;
+                                break;
+                            }
+                            seen[val] = true;
+                        }
+                        if (!valid) break;
+                    }
+                    if (!valid) continue;
+
+                    int r1 = 0 ;
+                    int r2 = 0;
+                    int r3 = 0;
+
+                    // check row 
+
+                    r1 = grid[r][c] + grid[r][c+1] + grid[r][c+2];
+                    r2 = grid[r+1][c] + grid[r+1][c+1] + grid[r+1][c+2];
+                    r3 = grid[r+2][c] + grid[r+2][c+1] + grid[r+2][c+2];
+
+                    int c1 = 0;
+                    int c2 = 0;
+                    int c3 = 0;
+
+                    c1 = grid[r][c] + grid[r+1][c] + grid[r+2][c];
+                    c2 = grid[r][c+1] + grid[r+1][c+1] + grid[r+2][c+1];
+                    c3 = grid[r][c+2] + grid[r+1][c+2] + grid[r+2][c+2];
+
+                    int d1 = grid[r][c] + grid[r+1][c+1] + grid[r+2][c+2];
+                    int d2 = grid[r][c+2] + grid[r+1][c+1] + grid[r+2][c];
+
+                    // Check all sums
+                    if ((r1 == r2) && (r2 == r3) &&
+                        (r1 == c1) && (c1 == c2) && (c2 == c3) &&
+                        (r1 == d1) && (d1 == d2)) {
+                        ans++;
+                    }
+                }
+            }
+        }
+
+
+        return ans;
+    }
+}
+
