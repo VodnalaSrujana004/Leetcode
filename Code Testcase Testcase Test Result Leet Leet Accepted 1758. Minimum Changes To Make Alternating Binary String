@@ -1,0 +1,56 @@
+You are given a string s consisting only of the characters '0' and '1'. In one operation, you can change any '0' to '1' or vice versa.
+
+The string is called alternating if no two adjacent characters are equal. For example, the string "010" is alternating, while the string "0100" is not.
+
+Return the minimum number of operations needed to make s alternating.
+
+ 
+
+Example 1:
+
+Input: s = "0100"
+Output: 1
+Explanation: If you change the last character to '1', s will be "0101", which is alternating.
+Example 2:
+
+Input: s = "10"
+Output: 0
+Explanation: s is already alternating.
+Example 3:
+
+Input: s = "1111"
+Output: 2
+Explanation: You need two operations to reach "0101" or "1010".
+ 
+
+Constraints:
+
+1 <= s.length <= 104
+s[i] is either '0' or '1'.
+
+
+-----------------------------------------------------------
+
+
+class Solution {
+    public int minOperations(String s) {
+
+        int count = 0;                 // Stores number of mismatches with pattern "010101..."
+        int n = s.length();            // Length of the string
+
+        // Traverse through each character of the string
+        for (int i = 0; i < n; i++) {
+
+            // Convert character ('0' or '1') to integer (0 or 1)
+            // Compare it with expected value at index i for pattern "0101..."
+            // i % 2 gives expected value: even index -> 0, odd index -> 1
+            // XOR (^) returns 1 if values are different (mismatch)
+            count += (s.charAt(i) - '0') ^ (i % 2);
+        }
+
+        // count = operations needed to convert into "010101..."
+        // n - count = operations needed to convert into "101010..."
+        // Return the minimum operations among the two possible patterns
+        return Math.min(count, n - count);
+    }
+}
